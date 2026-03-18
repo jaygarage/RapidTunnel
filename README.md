@@ -128,6 +128,16 @@ ES：海量数据 + 复杂查询
 
 # 六、📘 API 文档
 ```
+// ISPMap 运营商
+var ISPMap = map[string]string{
+	"cmcc":    "移动",
+	"ctcc":    "电信",
+	"cucc":    "联通",
+	"aliyun":  "阿里云",
+	"tencent": "腾讯云",
+	"aws":     "AWS",
+}
+
 type QueryParams struct {
     Port           string `json:"port"`                                     // 端口
     Source         string `json:"source"`                                   // 代理来源：aws、qgvps、aliyun等
@@ -144,7 +154,7 @@ proxy_params = {
 # "source": "xxx",
 # "country": "xxx",
 # "region": "xxx",
-# "city": "桂林市",
+# "city": "xxx",
 # "isp": "ctcc",
 # "expiration_type": "1-3"
 }
