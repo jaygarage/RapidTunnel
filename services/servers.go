@@ -44,20 +44,20 @@ func (hc *HandleClient) createAnException(w net.Conn, r *http.Request, err error
 
 // 自定义路由: /ip
 func (hc *HandleClient) handleCustomRoutesIP(w net.Conn, r *http.Request, params *proxy.QueryParams) {
-	if params == nil {
-		params = proxy.SetFieldFromQuery(r.URL.Query())
-	}
-
 	var (
 		resp *http.Response
 		body string
 	)
+	if params == nil {
+		params = proxy.SetFieldFromQuery(r.URL.Query())
+	}
 
 	if _, parseErr, sp := proxy.GetProxy(nil, params); parseErr == nil {
 		if psJSON, err := json.Marshal(sp); err != nil {
 			body = "无法完成您的请求"
-			resp = tools.CreateAnException(body, http.StatusServiceUnavailable, parseErr, r)
+			resp = tools.CreateAnException(body, http.StatusServiceUnavailable, err, r)
 		} else {
+			body = string(psJSON)
 			resp = &http.Response{
 				StatusCode: http.StatusOK,
 				Proto:      "HTTP/1.1",
@@ -104,18 +104,12 @@ func (hc *HandleClient) extractBasicAuthFromHeader(w net.Conn, r *http.Request) 
 		//table.Render()
 		//logrus.Infof("Formatted Table Output:\n%s", buf.String())
 
-		logrus.Infof("auth=%q client_ip=%s xff=%q method=%s url=%s",
-			headerProxyAuthorization,
-			hc.clientIP(),
-			r.Header.Get("X-Forwarded-For"),
-			func() string {
-				if r.Method == "CONNECT" {
-					return "https"
-				}
-				return "http"
-			}(),
-			r.URL.String(),
-		)
+		logrus.Infof("auth=%q client_ip=%s xff=%q method=%s url=%s", headerProxyAuthorization, hc.clientIP(), r.Header.Get("X-Forwarded-For"), func() string {
+			if r.Method == "CONNECT" {
+				return "https"
+			}
+			return "http"
+		}(), r.URL.String())
 	}(headerProxyAuthorization)
 
 	proxyAuthorizationErr := fmt.Errorf("proxy authorization invalid, client ip %s authorization failed, proxy ip %s", hc.clientIP(), hc.conn.LocalAddr().String())
